@@ -1,5 +1,5 @@
-
 import express from "express";
+import { requireSignin } from "../middlewares";
 
 const router = express.Router();
 
@@ -20,5 +20,9 @@ router.post("/signup", signup);
 router.post("/signin", signin);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.get("/auth-check", requireSignin,
+(req, res) => {
+  res.json({ ok: true })
+});
 
 export default router;
