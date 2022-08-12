@@ -10,6 +10,15 @@ import taskRoutes from "./routes/task";
 const morgan = require("morgan");
 
 const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http, {
+  path: '/socket.io',
+  cors: {
+    origin: process.env.CLIENT_URL,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+  }
+});
 
 // db connection
 mongoose
@@ -27,4 +36,11 @@ app.use(morgan("dev"));
 app.use("/api", authRoutes);
 app.use("/api", taskRoutes);
 
-app.listen(8000, () => console.log("Server running on port 8000"));
+io.on('connect', (socket) => {
+  //console.log("socket connection => ", socket.id);
+  socket.on("new-task", task => {
+    socket.broadcast.emit("new-task", task);
+  })
+})
+
+http.listen(8000, () => console.log("Server running on port 8000"));
